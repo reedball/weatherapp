@@ -1,0 +1,19 @@
+.dash {
+    height: 100px;
+    background-color: #515854;
+    color: white;
+}
+.dash h1{
+    margin:auto;
+}
+
+#cityName {
+    display: inline;
+}
+
+#weatherPic {
+    display: inline;
+}
+
+
+
