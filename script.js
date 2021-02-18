@@ -1,18 +1,16 @@
 // Date
 var today = new Date(); //creates today variable
 var dd = today.getDate(); //gets day
-var mm = today.getMonth()+1; //gets month
+var mm = today.getMonth() + 1; //gets month
 var yyyy = today.getFullYear(); //gets year
-if(dd<10) 
-{
-    dd='0'+dd;
-} 
-
-if(mm<10) 
-{
-    mm='0'+mm;
+if (dd < 10) {
+    dd = '0' + dd;
 }
-today = mm+'/'+dd+'/'+yyyy;
+
+if (mm < 10) {
+    mm = '0' + mm;
+}
+today = mm + '/' + dd + '/' + yyyy;
 
 // Function for removing all children from parent
 function removeAllChildNodes(parent) {
@@ -20,32 +18,46 @@ function removeAllChildNodes(parent) {
         parent.removeChild(parent.firstChild);
     }
 }
+var cityList = document.getElementsByClassName("cityButton"); //array of City Buttons
+// HISTORY EVENT
+var myFunction = function () {
+    var cityToPass = this.innerText;
+    console.log("click" + this.innerText);
+
+    getCityData("history", cityToPass);
+    getFiveDayData("history", cityToPass);
+}
+let listClickEvent = ()=>{
+    Array.from(cityList).forEach(element => element.addEventListener("click", myFunction));
+}
 
 // Function to retrieve city buttons
-function getCities(){
-    removeAllChildNodes(document.getElementById("myDIV")); 
+function getCities() {
+    removeAllChildNodes(document.getElementById("myDIV"));
+
     var cityHistory = JSON.parse(localStorage.getItem("cities"));
     cityHistory.forEach(c => {
-        if (c.name !== undefined){
+        if (c.name !== undefined) {
             var savedCity = document.createElement("button");
             savedCity.innerHTML = c.name;
             document.getElementById("myDIV").appendChild(savedCity);
-            savedCity.style.display="block";
+            savedCity.style.display = "block";
             savedCity.classList.add("cityButton", "list-group-item");
         }
     });
-
+    listClickEvent();
 }
 
-if (window.localStorage.length > 0){
+if (window.localStorage.length > 0) {
     getCities();
 }
 
 
 
 var city;
-function getCityData(isSearchOrHistory, hasCity){
+function getCityData(isSearchOrHistory, hasCity) {
     var api_url;
+    console.log(isSearchOrHistory, hasCity);
     if (isSearchOrHistory === "search") {
         city = document.getElementById("city").value;
         api_url = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=a76e8ae17a423488553909e792a72bf7";
@@ -60,21 +72,21 @@ function getCityData(isSearchOrHistory, hasCity){
             return res.json()
         })
         .then(data => {
-            if(isSearchOrHistory === "search"){
+            if (isSearchOrHistory === "search") {
                 var cities = localStorage.getItem("cities");
-                cities = cities ? JSON.parse(cities):[];
+                cities = cities ? JSON.parse(cities) : [];
                 cities.push(data)
                 cities = JSON.stringify(cities);
                 localStorage.setItem("cities", cities);
                 getCities();
             }
             var weatherIcon = data.weather[0].icon;
-            document.getElementById("cityName").innerHTML = data.name + '(' + today + ')';
-            document.getElementById("weatherPic").src = "http://openweathermap.org/img/w/" +weatherIcon+ ".png";
+            document.getElementById("cityName").innerHTML = data.name + ' (' + today + ')';
+            document.getElementById("weatherPic").src = "http://openweathermap.org/img/w/" + weatherIcon + ".png";
             document.getElementById("weatherPic").alt = "weatherPic";
-            document.getElementById("temperature").innerHTML = "Temperature: "+data.main.temp;
+            document.getElementById("temperature").innerHTML = "Temperature: " + data.main.temp;
             document.getElementById("humidity").innerHTML = "Humidity: " + data.main.humidity;
-            document.getElementById("windSpeed").innerHTML = "Windspeed: "+data.wind.speed;
+            document.getElementById("windSpeed").innerHTML = "Windspeed: " + data.wind.speed;
             document.getElementById("currentWeather").style.visibility = "visible";
 
 
@@ -85,21 +97,23 @@ function getCityData(isSearchOrHistory, hasCity){
             localStorage.setItem("lon", lon);
             var latt = JSON.parse(localStorage.getItem("lat"));
             var long = JSON.parse(localStorage.getItem("lon"));
-            uvIndex_url = "http://api.openweathermap.org/data/2.5/uvi?lat="+latt+"&lon="+long+"&appid=a76e8ae17a423488553909e792a72bf7";
+            uvIndex_url = "http://api.openweathermap.org/data/2.5/uvi?lat=" + latt + "&lon=" + long + "&appid=a76e8ae17a423488553909e792a72bf7";
             return fetch(uvIndex_url);
         })
         .then(res => {
             return res.json()
         })
-        .then (data => {
+        .then(data => {
             document.getElementById("uvIndex").innerHTML = "UV Index: " + data.value;
         })
         .catch(error => console.log('ERROR'))
 }
 
 
-function getFiveDayData(isSearchOrHistory, hasCity){
-    document.getElementById("forecastHeader").innerHTML = "5-Day Forecast";
+function getFiveDayData(isSearchOrHistory, hasCity) {
+    if (hasCity !== undefined) {
+        document.getElementById("forecastHeader").innerHTML = "5-Day Forecast";
+    }
     var fiveDay_url;
     if (isSearchOrHistory === "search") {
         city = document.getElementById("city").value;
@@ -116,7 +130,7 @@ function getFiveDayData(isSearchOrHistory, hasCity){
         .then(data => {
             removeAllChildNodes(document.getElementById("fiveDayDiv"));
 
-            for(let i=0; i < data.list.length; i+=8){
+            for (let i = 7; i < data.list.length; i += 8) {
                 newDiv = document.createElement("DIV");
                 newDiv.setAttribute("id", "newDiv");
                 document.getElementById("fiveDayDiv").appendChild(newDiv);
@@ -134,37 +148,29 @@ function getFiveDayData(isSearchOrHistory, hasCity){
 
                 //for icons
                 newIcon = document.createElement("IMG");
-                newIcon.src = "http://openweathermap.org/img/w/" +icon+ ".png";
+                newIcon.src = "http://openweathermap.org/img/w/" + icon + ".png";
                 newIcon.alt = "weathericon";
+                newIcon.classList.add("weatherIcon");
                 newDiv.appendChild(newIcon);
 
 
                 //for temps
                 newTemp = document.createElement("p");
-                newTemp.innerHTML = temp;
+                newTemp.innerHTML = "Temp: " + temp;
                 newDiv.appendChild(newTemp);
 
                 //for humiditys
                 newHumidity = document.createElement("p");
-                newHumidity.innerHTML = humidity;
+                newHumidity.innerHTML = "Humidity: " + humidity;
                 newDiv.appendChild(newHumidity);
             }
         })
         .catch(error => console.log('ERROR'))
 }
 
-var cityList = document.getElementsByClassName("cityButton"); //array of City Buttons
-// HISTORY EVENT
-var myFunction = function(){
-    var cityToPass = this.innerText;
-    getCityData("history", cityToPass);
-    getFiveDayData("history", cityToPass);
-}
-Array.from(cityList).forEach(function(c) {
-    c.addEventListener("click", myFunction);
-});
+listClickEvent();
 // SEARCH EVENT
-document.getElementById("searchButton").addEventListener("click", function(){
+document.getElementById("searchButton").addEventListener("click", function () {
     getCityData("search");
     getFiveDayData("search");
     document.getElementById('city').value = "";

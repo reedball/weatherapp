@@ -50,5 +50,21 @@
     margin: 20px;
 }
 
+#searchButton {
+    background-color:dodgerblue;
+    
+}
+
+.cityButton {
+    text-align: left;
+}
+
+#searchBar {
+    width: 220px;
+}
+
+.weatherIcon {
+    width: 40%;
+}
 
 
