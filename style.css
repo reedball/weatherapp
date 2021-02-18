@@ -15,5 +15,40 @@
     display: inline;
 }
 
+.sideContainer {
+    width: 300px;
+    height: auto;
+    background-color: rgb(248, 249, 250);
+    padding:10px;
+    display:inline-block;
+    vertical-align: top;
+}
+
+#myDIV {
+    margin-top:20px;
+}
+
+#mainContainer {
+    display:inline-block;
+}
+
+.cardCSS {
+    background-color:rgb(3, 120, 247) !important;
+    color:white;
+    margin-left: 10px;
+    margin-right:20px;
+}
+
+#currentWeather {
+    border: solid 1px rgb(223, 223, 223);
+    visibility: hidden;
+    margin: 20px;
+    padding: 10px;
+}
+
+#forecast {
+    margin: 20px;
+}
+
 
 

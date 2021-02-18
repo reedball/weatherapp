@@ -23,32 +23,37 @@ function removeAllChildNodes(parent) {
 
 // Function to retrieve city buttons
 function getCities(){
-        removeAllChildNodes(document.getElementById("myDIV")); 
-        var cityHistory = JSON.parse(localStorage.getItem("cities"));
-        cityHistory.forEach(c => {
-            if (c.name !== undefined){
-                var savedCity = document.createElement("button");
-                savedCity.innerHTML = c.name;
-                document.getElementById("myDIV").appendChild(savedCity);
-                savedCity.style.display="block";
-                savedCity.classList.add("cityButton", "list-group-item");
-            }
-        });
+    removeAllChildNodes(document.getElementById("myDIV")); 
+    var cityHistory = JSON.parse(localStorage.getItem("cities"));
+    cityHistory.forEach(c => {
+        if (c.name !== undefined){
+            var savedCity = document.createElement("button");
+            savedCity.innerHTML = c.name;
+            document.getElementById("myDIV").appendChild(savedCity);
+            savedCity.style.display="block";
+            savedCity.classList.add("cityButton", "list-group-item");
+        }
+    });
 
 }
 
-getCities();
+if (window.localStorage.length > 0){
+    getCities();
+}
 
+
+
+var city;
 function getCityData(isSearchOrHistory, hasCity){
-    var city;
     var api_url;
     if (isSearchOrHistory === "search") {
         city = document.getElementById("city").value;
-        api_url = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=d264d9ea20381547eb5eb231bf12b9c3";
+        api_url = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=a76e8ae17a423488553909e792a72bf7";
     }
     else if (isSearchOrHistory === "history") {
+
         city = hasCity;
-        api_url = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=d264d9ea20381547eb5eb231bf12b9c3";
+        api_url = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=a76e8ae17a423488553909e792a72bf7";
     }
     fetch(api_url)
         .then(res => {
@@ -70,6 +75,8 @@ function getCityData(isSearchOrHistory, hasCity){
             document.getElementById("temperature").innerHTML = "Temperature: "+data.main.temp;
             document.getElementById("humidity").innerHTML = "Humidity: " + data.main.humidity;
             document.getElementById("windSpeed").innerHTML = "Windspeed: "+data.wind.speed;
+            document.getElementById("currentWeather").style.visibility = "visible";
+
 
             //lat & long
             var lat = data.coord.lat;
@@ -78,7 +85,7 @@ function getCityData(isSearchOrHistory, hasCity){
             localStorage.setItem("lon", lon);
             var latt = JSON.parse(localStorage.getItem("lat"));
             var long = JSON.parse(localStorage.getItem("lon"));
-            uvIndex_url = "http://api.openweathermap.org/data/2.5/uvi?lat="+latt+"&lon="+long+"&appid=d264d9ea20381547eb5eb231bf12b9c3";
+            uvIndex_url = "http://api.openweathermap.org/data/2.5/uvi?lat="+latt+"&lon="+long+"&appid=a76e8ae17a423488553909e792a72bf7";
             return fetch(uvIndex_url);
         })
         .then(res => {
@@ -90,26 +97,30 @@ function getCityData(isSearchOrHistory, hasCity){
         .catch(error => console.log('ERROR'))
 }
 
+
 function getFiveDayData(isSearchOrHistory, hasCity){
-    var city
+    document.getElementById("forecastHeader").innerHTML = "5-Day Forecast";
     var fiveDay_url;
     if (isSearchOrHistory === "search") {
         city = document.getElementById("city").value;
-        fiveDay_url = "http://api.openweathermap.org/data/2.5/forecast?q=" + city + "&units=imperial&appid=d264d9ea20381547eb5eb231bf12b9c3";
+        fiveDay_url = "http://api.openweathermap.org/data/2.5/forecast?q=" + city + "&units=imperial&appid=a76e8ae17a423488553909e792a72bf7";
     }
     else if (isSearchOrHistory === "history") {
         city = hasCity;
-        fiveDay_url = "http://api.openweathermap.org/data/2.5/forecast?q=" + city + "&units=imperial&appid=d264d9ea20381547eb5eb231bf12b9c3";
+        fiveDay_url = "http://api.openweathermap.org/data/2.5/forecast?q=" + city + "&units=imperial&appid=a76e8ae17a423488553909e792a72bf7";
     }
     fetch(fiveDay_url)
         .then(res => {
             return res.json()
         })
         .then(data => {
+            removeAllChildNodes(document.getElementById("fiveDayDiv"));
+
             for(let i=0; i < data.list.length; i+=8){
                 newDiv = document.createElement("DIV");
+                newDiv.setAttribute("id", "newDiv");
                 document.getElementById("fiveDayDiv").appendChild(newDiv);
-                newDiv.classList.add("card", "col-sm-2")
+                newDiv.classList.add("cardCSS", "card", "col-sm-2")
 
                 date = data.list[i].dt_txt;
                 icon = data.list[i].weather[0].icon;
@@ -144,18 +155,19 @@ function getFiveDayData(isSearchOrHistory, hasCity){
 
 var cityList = document.getElementsByClassName("cityButton"); //array of City Buttons
 // HISTORY EVENT
+var myFunction = function(){
+    var cityToPass = this.innerText;
+    getCityData("history", cityToPass);
+    getFiveDayData("history", cityToPass);
+}
 Array.from(cityList).forEach(function(c) {
-    c.addEventListener('click', function(){
-        var cityToPass = this.innerText;
-        getCityData("history", cityToPass);
-        getFiveDayData("history", cityToPass);
-    });
+    c.addEventListener("click", myFunction);
 });
 // SEARCH EVENT
 document.getElementById("searchButton").addEventListener("click", function(){
     getCityData("search");
     getFiveDayData("search");
+    document.getElementById('city').value = "";
 })
 
-
-// for (let i = 0, i < array.length; i+ 8)
+//if you search first and then click on history it wont change
